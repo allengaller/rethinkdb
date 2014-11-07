@@ -33,9 +33,9 @@ private:
 
     // Normally, current_ <= capacity_, and capacity_ doesn't change.  current_ can
     // exceed capacity_ for three reasons.
-    //   1. A call to change_acquired_count could force it to overflow.
+    //   1. A call to change_count could force it to overflow.
     //   2. An acquirer will never be blocked while current_ is 0.
-    //   3. An act of God could change capacity_ (currently unimplemented; hail Satan).
+    //   3. capacity_ could be manually adjusted (by set_capacity).
     int64_t capacity_;
     int64_t current_;
 
@@ -48,8 +48,8 @@ class new_semaphore_acq_t : public intrusive_list_node_t<new_semaphore_acq_t> {
 public:
     // Construction is non-blocking, it gets you in line for the semaphore.  You need
     // to call acquisition_signal()->wait() in order to wait for your acquisition of the
-    // semaphore.  Acquirers receive the semaphore in the same order that they've
-    // acquired it.
+    // semaphore.  Acquirers receive the semaphore in the same order that they
+    // "got in line" it.
     ~new_semaphore_acq_t();
     new_semaphore_acq_t();
     new_semaphore_acq_t(new_semaphore_t *semaphore, int64_t count);
@@ -77,7 +77,8 @@ public:
 private:
     friend class new_semaphore_t;
 
-    // The semaphore this acquires (or NULL if this hasn't acquired a semaphore yet).
+    // The semaphore this acquires (or NULL if this hasn't begun acquiring a
+    // semaphore yet).
     new_semaphore_t *semaphore_;
 
     // The count of "how much" of the semaphore we've acquired (if semaphore_ is

@@ -1,8 +1,7 @@
 #include "concurrency/new_semaphore.hpp"
 
 new_semaphore_t::new_semaphore_t(int64_t capacity)
-    : capacity_(capacity), current_(0)
-{
+    : capacity_(capacity), current_(0) {
     guarantee(capacity > 0);
 }
 
